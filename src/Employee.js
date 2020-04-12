@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 function EmployeeList(props) {
-  //   const [tasks, setTasks] = useState([]);
   const [list, setList] = useState([]);
-  const [task, setTask] = useState({});
-  const [tasks, setTasks] = useState([]);
+  const [employee, setEmployee] = useState({});
+  const [employees, setEmployees] = useState([]);
   const [adding, setAdding] = useState(true);
   const textInput = useRef(null);
   const apiUri = process.env.REACT_APP_API_URI;
@@ -12,18 +11,22 @@ function EmployeeList(props) {
   console.log('apiUri', apiUri);
 
   const fetchEmployee = () => {
-    fetch(`${apiUri}employee`) // ascii for backtick = 96, hold ALT+96
+    fetch(`${apiUri}employee`)
       .then((res) => res.json())
       .then((data) => {
-        // setTasks(res.data);
         console.log(data);
-        let tasks = data.data;
-        let L = tasks.map((v, i) => {
+        let employees = data.data;
+        let L = employees.map((v, i) => {
           return (
-            <Task key={v._id} onDelete={onDelete} onEdit={onEdit} data={v} />
+            <Employee
+              key={v._id}
+              onDelete={onDelete}
+              onEdit={onEdit}
+              data={v}
+            />
           );
         });
-        setTasks(tasks);
+        setEmployees(employees);
         setList(L);
       });
   };
@@ -34,7 +37,7 @@ function EmployeeList(props) {
   }, []);
 
   const onDelete = (data) => {
-    let deleteTask = data;
+    let deleteEmployee = data;
     fetch(`${apiUri}employee`, {
       method: 'DELETE',
       headers: {
@@ -42,14 +45,14 @@ function EmployeeList(props) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify(deleteTask),
+      body: JSON.stringify(deleteEmployee),
     })
       .then((res) => res.json())
       .then((res) => {
         fetchEmployee();
       });
 
-    setTask({});
+    setEmployee({});
     setAdding(true);
   };
 
@@ -57,13 +60,13 @@ function EmployeeList(props) {
     console.log('onEdit', data);
     textInput.current.value = data.name;
     setAdding(false);
-    setTask(data);
+    setEmployee(data);
   };
 
-  const updateTask = () => {
-    let updateTask = task;
-    updateTask.name = textInput.current.value;
-    console.log('updateTask', updateTask);
+  const updateEmployee = () => {
+    let updateEmployee = employee;
+    updateEmployee.name = textInput.current.value;
+    console.log('UpdateEmployee', updateEmployee);
     fetch(`${apiUri}employee`, {
       method: 'PUT',
       headers: {
@@ -71,21 +74,21 @@ function EmployeeList(props) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify(updateTask),
+      body: JSON.stringify(updateEmployee),
     })
       .then((res) => res.json())
       .then((res) => {
         fetchEmployee();
       });
 
-    setTask({});
+    setEmployee({});
     setAdding(true);
   };
 
-  const addTask = () => {
-    let newTask = textInput.current.value;
-    console.log('addTask', newTask);
-    console.log('\t', JSON.stringify({ name: newTask }));
+  const addEmployee = () => {
+    let newEmployee = textInput.current.value;
+    console.log('Add Employee', newEmployee);
+    console.log('\t', JSON.stringify({ name: newEmployee }));
 
     fetch(`${apiUri}employee`, {
       method: 'POST',
@@ -94,7 +97,7 @@ function EmployeeList(props) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({ name: newTask }),
+      body: JSON.stringify({ name: newEmployee }),
     })
       .then((res) => res.json())
       .then((res) => {
@@ -105,14 +108,14 @@ function EmployeeList(props) {
   return (
     <div>
       <ul>{list}</ul>
-      New Employee: <input name='task' ref={textInput} />
-      {adding && <button onClick={addTask}>Add Employee</button>}
-      {!adding && <button onClick={updateTask}>Update Employee</button>}
+      New Employee: <input name='employee' ref={textInput} />
+      {adding && <button onClick={addEmployee}>Add Employee</button>}
+      {!adding && <button onClick={updateEmployee}>Update Employee</button>}
     </div>
   );
 }
 
-const Task = ({ data, onEdit, onDelete }) => (
+const Employee = ({ data, onEdit, onDelete }) => (
   <li>
     <button onClick={() => onEdit(data)}>Edit</button>
     <button onClick={() => onDelete(data)}>Delete</button>
